@@ -1,0 +1,49 @@
+services:
+  db:
+    image: postgres:18-alpine
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: pannagrobek
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+    networks:
+      - api_network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: adammazurek89@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80" # Panel będzie dostępny pod http://localhost:5050
+    depends_on:
+      - db
+    networks:
+      - api_network
+
+  api:
+    build: .
+    container_name: fastapi_app
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app # Mapowanie kodu z hosta do kontenera (dla --reload)
+    environment:
+      # FastAPI będzie łączyć się z bazą używając nazwy serwisu 'db' jako hosta
+      - DATABASE_URL=postgresql://admin:secretpassword@db:5432/app_database
+    depends_on:
+      - db
+    networks:
+      - api_network
+
+networks:
+  api_network:
+    driver: bridge
