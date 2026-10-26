@@ -25,6 +25,8 @@ services:
       - "5050:80" # Panel będzie dostępny pod http://localhost:5050
     depends_on:
       - db
+    volumes:
+      - ./pgadmin_data:/var/lib/pgadmin      
     networks:
       - api_network
 
