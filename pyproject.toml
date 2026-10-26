@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "api-pannagrobek"
+version = "0.1.0"
+description = "Api dla mojej apliakcji Flet pannagrobek"
+authors = ["Adam Mazurek <adammazurek89@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = {extras = ["standard"], version = "^0.162.0"}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
