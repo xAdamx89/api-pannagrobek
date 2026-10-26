@@ -37,8 +37,7 @@ services:
     volumes:
       - .:/app # Mapowanie kodu z hosta do kontenera (dla --reload)
     environment:
-      # FastAPI będzie łączyć się z bazą używając nazwy serwisu 'db' jako hosta
-      - DATABASE_URL=postgresql://admin:secretpassword@db:5432/app_database
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/pannagrobek
     depends_on:
       - db
     networks:
