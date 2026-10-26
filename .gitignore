@@ -140,5 +140,7 @@ cython_debug/
 re
 sys
 /db_data/
+/pgadmin_data/
+
 
 # End of https://mrkandreev.name/snippets/gitignore-generator/#Python
