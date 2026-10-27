@@ -5,7 +5,7 @@ services:
     restart: always
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: 4vT%u$MtfDegHp
       POSTGRES_DB: pannagrobek
     ports:
       - "5432:5432"
@@ -20,13 +20,13 @@ services:
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: adammazurek89@gmail.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_PASSWORD: 4vT%u$MtfDegHp
     ports:
       - "5050:80" # Panel będzie dostępny pod http://localhost:5050
     depends_on:
       - db
     volumes:
-      - ./pgadmin_data:/var/lib/pgadmin      
+      - ./pgadmin_data:/var/lib/pgadmin
     networks:
       - api_network
 
@@ -40,6 +40,10 @@ services:
       - .:/app # Mapowanie kodu z hosta do kontenera (dla --reload)
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/pannagrobek
+      - API_USER=pannagrobek
+      # Podwójny dolar zabezpiecza przed zepsuciem hasła przez Dockera
+      # Do aplikacji później correct_pass = secrets.compare_digest(credentials.password, os.getenv("API_PASS", "4vT%u$MtfDegHp"))
+      - API_PASS=4vT%u$$MtfDegHp
     depends_on:
       - db
     networks:

@@ -1,11 +1,32 @@
-from fastapi import FastAPI, Depends, HTTPException, Query
+import os
+import secrets
+from fastapi import FastAPI, Depends, HTTPException, Query, status
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from pydantic import BaseModel
 from typing import Dict, Any, Optional
 from database import get_db
 
-app = FastAPI()
+# --- Konfiguracja Autoryzacji ---
+security = HTTPBasic()
+
+def verify_credentials(credentials: HTTPBasicCredentials = Depends(security)):
+    # Pobieramy poświadczenia ze zmiennych środowiskowych (np. z docker-compose.yaml)
+    # Domyślne wartości (admin/admin123) działają jako fallback, jeśli zmienne nie są ustawione
+    correct_user = secrets.compare_digest(credentials.username, os.getenv("API_USER", "admin"))
+    correct_pass = secrets.compare_digest(credentials.password, os.getenv("API_PASS", "passwd"))
+    
+    if not (correct_user and correct_pass):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Nieprawidłowy login lub hasło",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return credentials.username
+
+# Inicjalizacja aplikacji z globalnym wymogiem autoryzacji dla wszystkich endpointów
+app = FastAPI(dependencies=[Depends(verify_credentials)])
 
 # --- Modele Pydantic dla metod POST i PUT ---
 
