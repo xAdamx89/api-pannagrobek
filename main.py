@@ -86,11 +86,11 @@ def generic_insert(table: str, payload: Dict[str, Any] = Body(...), db: Session 
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
 
-@app.put("/api/update/{table}")
-def generic_update(table: str, payload: UpdatePayload, db: Session = Depends(get_db)):
+@app.put("/api/update/{table}/{pk}")
+def generic_update(table: str, pk: str, payload: UpdatePayload, db: Session = Depends(get_db)):
     # POPRAWKA 3: Sygnatura przyjmuje zdefiniowany model UpdatePayload zamiast Dict[str, Any]
     validate_identifier(table)
-    validate_identifier(payload.pk_column)
+    validate_identifier(pk)
     
     if not payload.data:
         raise HTTPException(status_code=400, detail="Brak danych do aktualizacji.")
@@ -102,7 +102,7 @@ def generic_update(table: str, payload: UpdatePayload, db: Session = Depends(get
         
     set_str = ", ".join(set_clauses)
     
-    query_str = f"UPDATE {table} SET {set_str} WHERE {payload.pk_column} = :pk_val RETURNING *"
+    query_str = f"UPDATE {table} SET {set_str} WHERE {pk} = :pk_val RETURNING *"
     
     params = {f"update_{k}": v for k, v in payload.data.items()}
     params["pk_val"] = payload.pk_value
