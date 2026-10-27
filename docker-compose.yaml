@@ -40,7 +40,7 @@ services:
       - .:/app # Mapowanie kodu z hosta do kontenera (dla --reload)
     environment:
       # Do aplikacji później correct_pass = secrets.compare_digest(credentials.password, os.getenv("API_PASS", "4vT%u$MtfDegHp"))    
-      - DATABASE_URL=postgresql://postgres:HZ5uiG6yQSRSXt@db:5432/pan-nagrobek
+      - DATABASE_URL=postgresql://postgres:HZ5uiG6yQSRSXt@db:5432/sprzatanie-nagrobkow
       - API_USER=pannagrobek
       - API_PASS=HZ5uiG6yQSRSXt
     depends_on:
