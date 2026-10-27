@@ -39,10 +39,9 @@ services:
     volumes:
       - .:/app # Mapowanie kodu z hosta do kontenera (dla --reload)
     environment:
-      - DATABASE_URL=postgresql://postgres:HZ5uiG6yQSRSXt@db:5432/pannagrobek
+      # Do aplikacji później correct_pass = secrets.compare_digest(credentials.password, os.getenv("API_PASS", "4vT%u$MtfDegHp"))    
+      - DATABASE_URL=postgresql://postgres:HZ5uiG6yQSRSXt@db:5432/pan-nagrobek
       - API_USER=pannagrobek
-      # Podwójny dolar zabezpiecza przed zepsuciem hasła przez Dockera
-      # Do aplikacji później correct_pass = secrets.compare_digest(credentials.password, os.getenv("API_PASS", "4vT%u$MtfDegHp"))
       - API_PASS=HZ5uiG6yQSRSXt
     depends_on:
       - db
