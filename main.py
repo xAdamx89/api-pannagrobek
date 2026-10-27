@@ -86,26 +86,43 @@ def generic_insert(table: str, payload: Dict[str, Any] = Body(...), db: Session 
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
 
-@app.put("/api/update/{table}/{pk}")
-def generic_update(table: str, pk: str, payload: UpdatePayload, db: Session = Depends(get_db)):
-    # POPRAWKA 3: Sygnatura przyjmuje zdefiniowany model UpdatePayload zamiast Dict[str, Any]
+@app.put("/api/update/{table}")
+def generic_update(table: str, payload: Dict[str, Any] = Body(...), db: Session = Depends(get_db)):
     validate_identifier(table)
+    
+    if not payload:
+        raise HTTPException(status_code=400, detail="Brak danych do aktualizacji.")
+
+    # 1. Pobieramy nazwę kolumny klucza z body (i od razu usuwamy z payloadu)
+    pk = payload.pop("pk_column", None)
+    if not pk:
+        raise HTTPException(status_code=400, detail="W body brakuje klucza 'pk_column' określającego nazwę ID.")
+        
     validate_identifier(pk)
     
-    if not payload.data:
-        raise HTTPException(status_code=400, detail="Brak danych do aktualizacji.")
-        
+    # 2. Wyciągnięcie wartości klucza głównego ze słownika
+    pk_val = payload.get(pk)
+    if pk_val is None:
+        raise HTTPException(status_code=400, detail=f"Brak wartości dla klucza '{pk}' w danych wejściowych.")
+
     set_clauses = []
-    for col in payload.data.keys():
+    params = {}
+    
+    for col, val in payload.items():
         validate_identifier(col)
-        set_clauses.append(f"{col} = :update_{col}")
-        
+        # Pomijamy aktualizację samego klucza głównego
+        if col != pk:
+            set_clauses.append(f"{col} = :update_{col}")
+            params[f"update_{col}"] = val
+
+    if not set_clauses:
+        raise HTTPException(status_code=400, detail="Brak pól do aktualizacji (oprócz klucza).")
+
     set_str = ", ".join(set_clauses)
     
+    # 3. Budowanie zapytania: UPDATE tabela SET col1 = :update_col1 WHERE nazwa_klucza = :pk_val
     query_str = f"UPDATE {table} SET {set_str} WHERE {pk} = :pk_val RETURNING *"
-    
-    params = {f"update_{k}": v for k, v in payload.data.items()}
-    params["pk_val"] = payload.pk_value
+    params["pk_val"] = pk_val
     
     try:
         result = db.execute(text(query_str), params).mappings().first()
@@ -113,8 +130,6 @@ def generic_update(table: str, pk: str, payload: UpdatePayload, db: Session = De
         if not result:
             raise HTTPException(status_code=404, detail="Nie znaleziono rekordu do aktualizacji.")
         return dict(result)
-    except HTTPException:
-        raise
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
