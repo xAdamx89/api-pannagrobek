@@ -47,6 +47,20 @@ services:
       - db
     networks:
       - api_network
+  frontend:
+      build:
+        context: ../pan-nagrobek-flet
+        dockerfile: Dockerfile
+      container_name: flet_frontend
+      restart: always
+      ports:
+        - "8550:8550"
+      environment:
+        - API_URL=http://api:8000/api
+      depends_on:
+        - api
+      networks:
+        - api_network
 
 networks:
   api_network:
