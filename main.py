@@ -134,7 +134,7 @@ def generic_update(table: str, payload: Dict[str, Any] = Body(...), db: Session 
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
 
-@app.get("/api/update/{tablica}")
+@app.get("/api/table_def/{tablica}")
 def get_table_def(tablica: str, db: Session = Depends(get_db)):
     sqlstmt = """
         SELECT 
@@ -153,4 +153,3 @@ def get_table_def(tablica: str, db: Session = Depends(get_db)):
         return [dict(row) for row in result]
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-    
