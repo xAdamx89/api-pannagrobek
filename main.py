@@ -133,3 +133,24 @@ def generic_update(table: str, payload: Dict[str, Any] = Body(...), db: Session 
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/api/update/{tablica}")
+def get_table_def(tablica: str, db: Session = Depends(get_db)):
+    sqlstmt = """
+        SELECT 
+            column_name, 
+            data_type, 
+            character_maximum_length,
+            is_nullable
+        FROM 
+            information_schema.columns
+        WHERE 
+            table_name = :tablica
+    """
+    try:
+        # Przekazanie wartości parametru w postaci słownika jako drugi argument
+        result = db.execute(text(sqlstmt), {"tablica": tablica}).mappings().all()
+        return [dict(row) for row in result]
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
