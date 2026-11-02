@@ -12,7 +12,9 @@ sqlalchemy = "^2.1.6"
 psycopg2-binary = "^2.9.13"
 psycopg = {extras = ["binary"], version = "^3.3.6"}
 bcrypt = "^5.0.0"
-jwt = "^1.4.0"
+pyjwt = "^2.15.1"
+uvicorn = "^0.54.0"
+python-multipart = "^0.0.33"
 
 
 [build-system]
